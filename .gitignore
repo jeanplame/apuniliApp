@@ -33,6 +33,12 @@ local.properties
 /.idea/shelf/
 /.idea/httpRequests/
 /.idea/codeStyles/Project.xml
+/.idea/copilotDiffState.xml
+/.idea/copilot.data.migration.ask2agent.xml
+/.idea/deploymentTargetSelector.xml
+/.idea/deviceManager.xml
+/.idea/studiobot.xml
+/.idea/appInsightsSettings.xml
 *.iml
 
 # OS-specific files
@@ -55,3 +61,6 @@ Thumbs.db
 
 # Shared module build
 /shared/build/
+
+# Kotlin compiler metadata & errors
+.kotlin/
