@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Section: Profile & Settings -->
+    <item
+        android:id="@+id/action_view_profile"
+        android:title="Voir Mon Profil"
+        android:icon="@drawable/ic_person"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_view_history"
+        android:title="Historique d'Adhésion"
+        android:icon="@drawable/ic_members"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:title="Paramètres"
+        android:icon="@drawable/ic_settings_black_24dp"
+        app:showAsAction="never" />
+
+
+    <!-- Section: Quick Access -->
+    <item
+        android:id="@+id/action_gallery"
+        android:title="Galerie Photos &amp; Vidéos"
+        android:icon="@drawable/ic_photo_library"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_documents"
+        android:title="Documents Officiels"
+        android:icon="@drawable/ic_document"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_events"
+        android:title="Événements &amp; Activités"
+        android:icon="@drawable/ic_event"
+        app:showAsAction="never" />
+
+</menu>
+

@@ -1,0 +1,187 @@
+IMPLEMENTATION DU FLUX D'ADHESION APUNILI
+==========================================
+
+RESUME DU FLUX COMPLET:
+=====================
+
+1. INSCRIPTION → Utilisateur devient VISITOR
+   - RegisterFragment.kt: role = UserRole.VISITOR
+   - AuthenticationService.kt: confirmation du role par defaut = VISITOR
+
+2. ACCES A L'ECRAN ADHESION → Affichage conditionnel
+   - MembershipFragment verifie le role et l'etat de demande
+   - Si VISITOR sans demande → affiche formulaire vide
+   - Si VISITOR avec demande PENDING → affiche "En attente"
+   - Si VISITOR avec demande ACCEPTED → affiche "Demande approuvee"
+   - Si VISITOR avec demande REJECTED → affiche "Demande rejetee" + bouton soumettre
+
+3. SOUMISSION DEMANDE → Status = PENDING
+   - MembershipFragment.setupFormSubmission()
+   - Appel MembershipViewModel.submitMembershipRequest()
+   - Cree une MembershipRequest dans Supabase avec status PENDING
+   - Utilisateur reste VISITOR
+
+4. ADMIN APPROUVE → Status = ACCEPTED, Role = MEMBER
+   - AdminMembershipFragment.approveMembership()
+   - Appel FirebaseMembershipRepository.approveMembership()
+   - Met a jour: MembershipRequest.status = ACCEPTED
+   - Met a jour: User.role = MEMBER
+   - Cree un audit log
+
+5. UTILISATEUR SE RECONNECTE OU RELOAD FRAGMENT
+   - LoginFragment recup role = MEMBER depuis DB
+   - MembershipFragment.onResume() recharge le statut
+   - MembershipViewModel affiche "Demande approuvee"
+
+6. ADMIN REJETTE (ALTERNATIVE)
+   - AdminMembershipFragment.rejectMembership()
+   - Met a jour: MembershipRequest.status = REJECTED
+   - Role reste VISITOR
+   - Utilisateur voit message rejet + commentaire admin
+   - Peut soumettre une nouvelle demande
+
+
+FICHIERS MODIFIES:
+=================
+
+1. MembershipViewModel.kt
+   - Ajout LiveData pour membershipRequest, userMembershipStatus, isLoading, errorMessage, requestSubmitted
+   - Methode getMembershipRequestByUserId(userId)
+   - Methode submitMembershipRequest(request)
+
+2. MembershipFragment.kt
+   - Initialisation avec ViewModel
+   - observeViewModel() pour ecouter les changements
+   - onResume() pour recharger le statut a chaque retour
+   - setupStatusDisplay() pour afficher le statut ou le formulaire
+   - setupFormSubmission() utilise le ViewModel
+   - setupVisitorMode() pour les non-authentifies
+   - setupMemberMode() pour les membres
+
+3. fragment_membership.xml
+   - Ajout tv_membership_status (affichage du statut en gros caracteres)
+   - Ajout tv_status_message (message descriptif)
+   - Conteneur form_fields pour masquer/afficher le formulaire
+
+4. RegisterFragment.kt
+   - CORRECTION: role = UserRole.VISITOR (au lieu de MEMBER)
+
+5. AdminMembershipFragment.kt
+   - Import FirebaseUserRepository
+   - approveMembership() recharge le profil utilisateur apres approbation
+
+
+LOGIQUE DE VISIBILITE:
+====================
+
+Ecran Adhesion selon le role:
+
+VISITOR sans demande:
+  - affiche formulaire complet
+  - bouton "Envoyer ma demande d'adhesion"
+
+VISITOR avec demande PENDING:
+  - affiche "Demande en attente"
+  - affiche message d'attente
+  - aucun formulaire
+  - aucun bouton
+
+VISITOR avec demande ACCEPTED:
+  - affiche "Demande approuvee"
+  - affiche message "Vous etes maintenant membre"
+  - aucun formulaire
+  - aucun bouton
+
+VISITOR avec demande REJECTED:
+  - affiche "Demande rejetee"
+  - affiche commentaire admin
+  - affiche bouton "Soumettre une nouvelle demande"
+
+MEMBER:
+  - affiche "Vous etes membre"
+  - message de confirmation
+  - aucun formulaire
+  - aucun bouton
+
+ADMIN:
+  - redirection automatique vers AdminMembershipFragment
+
+
+TESTS A EFFECTUER:
+==================
+
+1. Inscription et verification du role
+   - Creer un compte email
+   - Verifier dans Supabase que role = "VISITOR"
+
+2. Premiere visite du formulaire d'adhesion
+   - Se connecter avec VISITOR
+   - Acceder a l'ecran Adhesion
+   - Voir le formulaire vide avec tous les champs visibles
+
+3. Soumission de la demande
+   - Remplir le formulaire
+   - Cliquer "Envoyer ma demande d'adhesion"
+   - Voir le message "Demande envoyee avec succes"
+   - Ecran change pour afficher "Demande en attente"
+
+4. Verification en base de donnees
+   - Table membership_requests: verification que status = "PENDING"
+   - Table users: verification que role = "VISITOR"
+
+5. Admin approuve la demande
+   - Se connecter avec un compte ADMIN
+   - Acceder a "Gestion des Adhesions"
+   - Cliquer "Approuver" sur la demande
+   - Entrer un commentaire optionnel
+   - Confirmer
+
+6. Verification apres approbation
+   - Table membership_requests: status = "ACCEPTED"
+   - Table users: role = "MEMBER"
+
+7. Utilisateur se reconnecte
+   - Se deconnecter du compte VISITOR
+   - Se reconnecter
+   - Acceder a l'ecran Adhesion
+   - Voir "Vous etes membre"
+   - Navigation change pour afficher les sections "Espace membre"
+
+8. Admin rejette une demande (test avec nouvelle demande)
+   - Se reconnecter avec VISITOR
+   - Cliquer "Soumettre une nouvelle demande"
+   - Formulaire reapparat
+   - Remplir et soumettre
+   - Admin rejette avec commentaire
+   - Utilisateur voit "Demande rejetee" + commentaire
+   - Peut soumettre une nouvelle demande
+
+
+VALIDATIONS EFFECTUEES:
+=======================
+
+✓ RegisterFragment: nouveaux utilisateurs = VISITOR
+✓ AuthenticationService: confirmé role VISITOR par defaut
+✓ MembershipViewModel: LiveData et methodes implementees
+✓ MembershipFragment: logique conditionnelle complete
+✓ Layout XML: ajout des TextViews pour statut
+✓ AdminMembershipFragment: import FirebaseUserRepository ajoute
+✓ FirebaseMembershipRepository: approveMembership met a jour le role
+✓ Observation des changements: observeViewModel et onResume
+
+
+FONCTIONALITES COMPLETEES:
+==========================
+
+✓ Attribution du role VISITOR a l'inscription
+✓ Affichage conditionnel du formulaire vs statut
+✓ Soumission de demande d'adhesion
+✓ Suivi du statut de la demande
+✓ Approbation par admin avec changement de role
+✓ Rejet par admin avec commentaire
+✓ Recharge du statut au retour du fragment
+✓ Notification utilisateur du changement de statut
+✓ Resoumission apres rejet
+✓ Audit logging des actions
+
+

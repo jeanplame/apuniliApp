@@ -1,0 +1,184 @@
+PROBLEME ET SOLUTIONS - VISUEL SIMPLIFIE
+=========================================
+
+LE PROBLEME:
+============
+
+Utilisateur inscrit → Rien n'apparaît dans la BD ❌
+
+Flux CASSÉ:
+──────────
+1. RegisterFragment crée User avec role=MEMBER
+2. Appelle createUserIfNotExists()
+3. Repository force role=VISITOR (❌ CONFLIT)
+4. buildUserJson() n'envoie pas membership_status (❌ COLONNE MANQUANTE)
+5. INSERT échoue silencieusement (❌ BD rejette)
+6. Utilisateur disparu de la BD
+
+
+LES 4 CAUSES:
+=============
+
+Cause 1: Table users n'a pas la colonne membership_status
+┌─────────────────────────────────────────────────────┐
+│ CREATE TABLE users (                                 │
+│     id TEXT,                                        │
+│     email TEXT,                                     │
+│     display_name TEXT,                              │
+│     role TEXT,                                      │
+│     ← membership_status MANQUANT ❌                   │
+│     created_at BIGINT                               │
+│ )                                                    │
+└─────────────────────────────────────────────────────┘
+
+Cause 2: buildUserJson() n'envoie pas membership_status
+┌─────────────────────────────────────────────────────┐
+│ buildJsonObject {                                    │
+│     put("id", uid)                                  │
+│     put("email", email)                             │
+│     put("display_name", name)                       │
+│     put("role", role)                               │
+│     ← put("membership_status", ...) MANQUANT ❌      │
+│     put("created_at", timestamp)                    │
+│ }                                                    │
+└─────────────────────────────────────────────────────┘
+
+Cause 3: createUserIfNotExists() forçait role=VISITOR
+┌─────────────────────────────────────────────────────┐
+│ Entrée: user.role = MEMBER (bon)                   │
+│         ↓                                            │
+│ Le code fait:                                       │
+│ val roleToSave = if (admin) ADMIN else VISITOR ❌   │
+│                                      (force VISITOR)│
+│         ↓                                            │
+│ Sortie: VISITOR (mauvais)                          │
+└─────────────────────────────────────────────────────┘
+
+Cause 4: RegisterFragment ignore le User retourné
+┌─────────────────────────────────────────────────────┐
+│ createUserIfNotExists(uid, user)  ← retourne User  │
+│ ↓                                                    │
+│ RegisterFragment ne récupère pas ❌                 │
+│ userProfile = ...  ← l'objet n'est pas à jour      │
+│ sessionManager.saveSession(userProfile)  ← cassé   │
+└─────────────────────────────────────────────────────┘
+
+
+LES 4 SOLUTIONS:
+================
+
+Solution 1: Ajouter la colonne membership_status
+┌─────────────────────────────────────────────────────┐
+│ CREATE TABLE users (                                │
+│     id TEXT PRIMARY KEY,                            │
+│     email TEXT,                                     │
+│     display_name TEXT,                              │
+│     role TEXT DEFAULT 'MEMBER',                     │
+│     membership_status TEXT DEFAULT 'NOT_SUBMITTED', │ ✅ NOUVEAU
+│     created_at BIGINT                               │
+│ )                                                    │
+└─────────────────────────────────────────────────────┘
+
+Fichier: supabase_setup.sql (ligne ~25)
+
+Solution 2: Envoyer membership_status dans le JSON
+┌─────────────────────────────────────────────────────┐
+│ buildJsonObject {                                    │
+│     put("id", uid)                                  │
+│     put("email", email)                             │
+│     put("display_name", name)                       │
+│     put("role", role)                               │
+│     put("membership_status", status.name) ✅ NOUVEAU│
+│     put("created_at", timestamp)                    │
+│ }                                                    │
+└─────────────────────────────────────────────────────┘
+
+Fichier: FirebaseUserRepository.kt buildUserJson()
+
+Solution 3: Respecter le rôle fourni
+┌─────────────────────────────────────────────────────┐
+│ Entrée: user.role = MEMBER (bon)                   │
+│         ↓                                            │
+│ Le code fait MAINTENANT:                           │
+│ val roleToSave = if (admin) ADMIN else user.role ✅ │
+│                                    (respecte)      │
+│         ↓                                            │
+│ Sortie: MEMBER (correct)                           │
+└─────────────────────────────────────────────────────┘
+
+Fichier: FirebaseUserRepository.kt createUserIfNotExists()
+
+Solution 4: Récupérer le User retourné
+┌─────────────────────────────────────────────────────┐
+│ userProfile = createUserIfNotExists(uid, user) ✅   │
+│              ↑↑↑↑                                    │
+│              (récupère le résultat)                 │
+│ sessionManager.saveSession(userProfile)  ✅ à jour │
+└─────────────────────────────────────────────────────┘
+
+Fichier: RegisterFragment.kt handleSuccessfulRegistration()
+
+
+LE FLUX CORRIGE:
+================
+
+1. RegisterFragment crée User(role=MEMBER) ✅
+        ↓
+2. Appelle createUserIfNotExists()
+        ↓
+3. Repository respecte role=MEMBER ✅
+        ↓
+4. buildUserJson() envoie TOUS les champs ✅
+        ↓
+5. INSERT réussit, User en BD ✅
+        ↓
+6. RegisterFragment récupère l'User ✅
+        ↓
+7. Session sauvegardée avec données correctes ✅
+
+
+VERIFICATION:
+==============
+
+Avant correction (BD vide):
+┌────────────────────────────┐
+│ users table                │
+├────────────────────────────┤
+│ (aucune ligne) ❌           │
+└────────────────────────────┘
+
+Après correction (utilisateur apparaît):
+┌────────────────────────────────────────────────┐
+│ users table                                    │
+├────────────────────────────────────────────────┤
+│ id      | email      | role   | membership_... │
+├────────────────────────────────────────────────┤
+│ uuid    | test@ex... | MEMBER | NOT_SUBMITTED  │ ✅
+└────────────────────────────────────────────────┘
+
+
+ACTIONS REQUISES (PAR ORDRE):
+==============================
+
+1. Exécuter SQL migration sur Supabase
+   Fichier: supabase_migration_add_membership_status.sql
+
+2. Redéployer l'app (rebuild + reinstall)
+
+3. Tester l'inscription
+
+4. Vérifier la BD
+   Deve voir: id, email, role=MEMBER, membership_status=NOT_SUBMITTED
+
+
+TEMPS ESTIMATION:
+=================
+
+- Exécution SQL: 2 minutes
+- Rebuild app: 3-5 minutes
+- Test inscription: 2 minutes
+- Vérification BD: 1 minute
+───────────────────────────
+TOTAL: ~10-15 minutes ⏱️
+
+

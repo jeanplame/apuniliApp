@@ -1,0 +1,195 @@
+GUIDE D'EXECUTION - CORRIGER LE PROBLEME DES UTILISATEURS QUI N'APPARAISSENT PAS
+=================================================================================
+
+ETAPE 1: METTRE À JOUR LA BASE DE DONNEES SUPABASE
+===================================================
+
+Option A - Si c'est votre première mise en place (Recommandé):
+─────────────────────────────────────────────────────────────
+
+1. Aller sur https://supabase.com → Connectez-vous à votre projet
+2. Aller dans: SQL Editor (à gauche)
+3. Cliquer "New Query"
+4. Copier le contenu du fichier: supabase_setup.sql
+5. Coller dans l'éditeur SQL
+6. Cliquer "Run" (en haut à droite)
+7. Attendre la confirmation de succès
+
+Option B - Si vous avez déjà une table users existante:
+────────────────────────────────────────────────────────
+
+1. Aller sur https://supabase.com → Connectez-vous à votre projet
+2. Aller dans: SQL Editor
+3. Cliquer "New Query"
+4. Copier le contenu du fichier: supabase_migration_add_membership_status.sql
+5. Coller dans l'éditeur SQL
+6. Cliquer "Run"
+7. Attendre la confirmation
+
+
+ETAPE 2: REDÉPLOYER L'APPLICATION
+==================================
+
+Avec Android Studio:
+──────────────────
+
+1. Ouvrir le projet apuniliApp dans Android Studio
+2. Attendre que Gradle se synchronise
+3. Cliquer Menu → Build → Clean Project
+4. Attendre que le nettoyage se termine
+5. Cliquer Menu → Build → Build Bundle(s) / APK(s) → Build APK(s)
+6. Attendre la compilation (cela peut prendre 2-5 minutes)
+7. Une fois terminé, un message devrait apparaître en bas
+
+Pour tester immédiatement:
+────────────────────────
+
+8. Brancher votre appareil Android via USB
+9. Cliquer sur le triangle "Run" (Shift + F10)
+   OU
+   Menu → Run → Run 'app'
+10. Sélectionner votre appareil
+11. Attendre que l'app s'installe et se lance
+
+
+ETAPE 3: TESTER L'INSCRIPTION
+==============================
+
+Sur l'appareil/émulateur:
+────────────────────────
+
+1. Ouvrir l'application Apunili
+2. Si vous êtes déjà connecté, cliquer Menu → Logout
+3. Cliquer "S'inscrire"
+4. Remplir le formulaire d'inscription:
+   - Email: test@example.com
+   - Mot de passe: Test123!
+   - Nom: Dupont
+5. Cliquer "S'inscrire"
+6. Attendre (cela peut prendre quelques secondes)
+7. Vous devriez voir un message "Inscription réussie"
+
+
+ETAPE 4: VÉRIFIER DANS LA BASE DE DONNEES
+===========================================
+
+1. Aller sur https://supabase.com → Votre projet
+2. Dans le menu de gauche → Table Editor
+3. Cliquer sur la table "users"
+4. Vous devriez voir votre nouvel utilisateur avec:
+   ├─ id: (UUID généré)
+   ├─ email: test@example.com
+   ├─ display_name: Dupont
+   ├─ role: MEMBER ✅ (IMPORTANT!)
+   ├─ membership_status: NOT_SUBMITTED ✅ (IMPORTANT!)
+   └─ created_at: (timestamp)
+
+Si ce n'est pas le cas:
+──────────────────────
+
+❌ Si l'utilisateur n'apparaît pas du tout:
+   → Vérifier les logs de la console Android Studio (cat logcat)
+   → Vérifier la connexion à Supabase dans SupabaseClient.kt
+
+❌ Si les colonnes membership_status ou role sont vides:
+   → Ré-exécuter le script supabase_setup.sql complet
+   → OU relancer la migration supabase_migration_add_membership_status.sql
+
+❌ Si role = VISITOR au lieu de MEMBER:
+   → L'ancienne version du code s'exécute
+   → Faire Clean + Rebuild complet
+   → Réinstaller l'app
+
+
+ETAPE 5: TESTER LE FLUX D'ADHÉSION COMPLET
+============================================
+
+1. Avec le nouvel utilisateur, vous êtes maintenant connecté
+2. Aller dans Menu → Adhésion
+3. Vous devriez voir:
+   ✅ Le formulaire d'adhésion complet (car membership_status = NOT_SUBMITTED)
+   ✅ Les champs: Nom, Prénom, Email (pré-rempli), Adresse, etc.
+4. Remplir le formulaire et cliquer "Envoyer ma demande d'adhésion"
+5. Vous devriez voir: "✅ Demande en attente"
+6. Vérifier en BD: membership_status = PENDING
+
+
+ETAPE 6: TESTER L'APPROBATION (ADMIN)
+=======================================
+
+Se connecter en tant qu'admin:
+────────────────────────────
+
+1. Déconnexion de l'utilisateur créé
+2. Connexion avec admin@apunili.com (ou tout compte admin)
+3. Aller dans Menu → Admin Dashboard
+4. Cliquer "Gestion des Adhésions"
+5. Onglet "En attente" devrait montrer la demande de l'utilisateur
+6. Cliquer "Approuver"
+7. Entrer un commentaire optionnel et confirmer
+
+Vérifier les changements:
+────────────────────────
+
+8. Aller dans table Editor → users
+9. Trouver l'utilisateur test@example.com
+10. Vérifier: membership_status = ACCEPTED ✅
+11. Se reconnecter avec cet utilisateur
+12. Aller dans Menu → Adhésion
+13. Voir: "✅ Demande approuvée"
+
+
+COMMANDES DE DEBUGGING (Si besoin):
+====================================
+
+Afficher les logs en temps réel (dans terminal):
+───────────────────────────────────────────────
+
+./gradlew clean
+./gradlew build
+./gradlew installDebug
+
+OU via Android Studio:
+Run → Stop (pour arrêter l'app si elle tourne)
+Puis relancer avec Run ou Shift + F10
+
+
+RESUME DES CORRECTIONS:
+=======================
+
+Le problème venait de:
+
+1. ❌ Table users n'avait pas la colonne membership_status
+   ✅ FIXÉ: supabase_setup.sql mise à jour
+
+2. ❌ buildUserJson() n'envoyait pas membership_status
+   ✅ FIXÉ: ajout put("membership_status", ...) dans FirebaseUserRepository.kt
+
+3. ❌ createUserIfNotExists() forçait role = VISITOR
+   ✅ FIXÉ: respecte maintenant le rôle fourni (MEMBER)
+
+4. ❌ RegisterFragment ne récupérait pas l'utilisateur créé
+   ✅ FIXÉ: userProfile = createUserIfNotExists(...)
+
+
+QUESTIONS / PROBLEMES ?
+========================
+
+Si vous voyez toujours le problème après ces étapes:
+
+1. Vérifier les logs: Android Studio → Logcat (en bas)
+   Chercher les messages d'erreur Supabase
+
+2. Vérifier la connexion: SupabaseClient.kt
+   - URL correcte ?
+   - Clé API correcte ?
+
+3. Vérifier RLS (Row Level Security): Dans Supabase Dashboard
+   → Authentication → Policies
+   → S'assurer que les politiques pour 'users' permettent INSERT/UPDATE
+
+4. Supprimer l'app et réinstaller:
+   - Sur l'appareil: Settings → Apps → Apunili → Uninstall
+   - Puis re-lancer depuis Android Studio
+
+

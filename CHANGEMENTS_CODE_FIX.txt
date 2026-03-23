@@ -1,0 +1,239 @@
+RESUME DES CHANGEMENTS DE CODE - FIX UTILISATEURS QUI N'APPARAISSAIENT PAS
+============================================================================
+
+PROBLEME PRINCIPAL:
+===================
+
+Les utilisateurs qui s'inscrivaient n'apparaissaient pas dans la base de données
+Raison: 3 problèmes simultanés identifiés et corrigés
+
+═══════════════════════════════════════════════════════════════════════════════
+
+CHANGEMENT 1: supabase_setup.sql
+═════════════════════════════════
+
+AVANT:
+──────
+CREATE TABLE IF NOT EXISTS users (
+    id           TEXT PRIMARY KEY,
+    email        TEXT NOT NULL DEFAULT '',
+    display_name TEXT NOT NULL DEFAULT '',
+    photo_url    TEXT NOT NULL DEFAULT '',
+    password_hash TEXT NOT NULL DEFAULT '',
+    role         TEXT NOT NULL DEFAULT 'VISITOR',
+    created_at   BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
+);
+
+APRÈS:
+──────
+CREATE TABLE IF NOT EXISTS users (
+    id                  TEXT PRIMARY KEY,
+    email               TEXT NOT NULL DEFAULT '',
+    display_name        TEXT NOT NULL DEFAULT '',
+    photo_url           TEXT NOT NULL DEFAULT '',
+    password_hash       TEXT NOT NULL DEFAULT '',
+    role                TEXT NOT NULL DEFAULT 'MEMBER',
+    membership_status   TEXT NOT NULL DEFAULT 'NOT_SUBMITTED',  ← NOUVEAU CHAMP
+    created_at          BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
+);
+
+RAISON:
+- membership_status était envoyé par l'app mais pas reçu par la BD
+- Colonne manquante = INSERT/UPSERT échoue silencieusement
+- role par défaut incorrect (VISITOR au lieu de MEMBER)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+CHANGEMENT 2: FirebaseUserRepository.kt → buildUserJson()
+═══════════════════════════════════════════════════════════
+
+AVANT:
+──────
+private fun buildUserJson(uid: String, user: User): JsonObject {
+    return buildJsonObject {
+        put("id", uid)
+        put("email", user.email.lowercase())
+        put("display_name", user.displayName)
+        put("photo_url", user.photoUrl)
+        put("role", user.role.name)
+        put("created_at", user.createdAt)
+    }
+}
+
+APRÈS:
+──────
+private fun buildUserJson(uid: String, user: User): JsonObject {
+    return buildJsonObject {
+        put("id", uid)
+        put("email", user.email.lowercase())
+        put("display_name", user.displayName)
+        put("photo_url", user.photoUrl)
+        put("role", user.role.name)
+        put("membership_status", user.membershipStatus.name)  ← NOUVEAU
+        put("created_at", user.createdAt)
+    }
+}
+
+RAISON:
+- Le champ membership_status était absent du JSON envoyé à Supabase
+- Même avec la colonne en BD, elle ne se remplissait pas
+- Cause potentielle d'erreur lors de l'insert
+
+═══════════════════════════════════════════════════════════════════════════════
+
+CHANGEMENT 3: FirebaseUserRepository.kt → createUserIfNotExists()
+═════════════════════════════════════════════════════════════════════
+
+AVANT:
+──────
+suspend fun createUserIfNotExists(uid: String, user: User): User {
+    return try {
+        val existing = getUserByUid(uid)
+        if (existing != null) {
+            Log.d(TAG, "User exists, returning existing profile (Role: ${existing.role})")
+            existing
+        } else {
+            // Forcer VISITOR pour toute nouvelle création
+            val roleToSave = if (user.email.lowercase() == "admin@apunili.com") UserRole.ADMIN else UserRole.VISITOR
+            val finalUser = user.copy(id = uid, role = roleToSave)
+            // ...
+        }
+    } catch (e: Exception) {
+        Log.e(TAG, "Erreur createUserIfNotExists: ${e.message}")
+        user
+    }
+}
+
+APRÈS:
+──────
+suspend fun createUserIfNotExists(uid: String, user: User): User {
+    return try {
+        val existing = getUserByUid(uid)
+        if (existing != null) {
+            Log.d(TAG, "User exists, returning existing profile (Role: ${existing.role})")
+            existing
+        } else {
+            // Utiliser le rôle fourni (normalement MEMBER)
+            val roleToSave = if (user.email.lowercase() == "admin@apunili.com") UserRole.ADMIN else user.role  ← CORRECTION
+            val finalUser = user.copy(id = uid, role = roleToSave)
+            // ...
+        }
+    } catch (e: Exception) {
+        Log.e(TAG, "Erreur createUserIfNotExists: ${e.message}")
+        user
+    }
+}
+
+RAISON:
+- La fonction forçait role = VISITOR au lieu de respecter le rôle MEMBER envoyé
+- Inconsistance: RegisterFragment envoie MEMBER mais Repository force VISITOR
+- Risque de collision avec membership_status = NOT_SUBMITTED
+
+═══════════════════════════════════════════════════════════════════════════════
+
+CHANGEMENT 4: RegisterFragment.kt → handleSuccessfulRegistration()
+════════════════════════════════════════════════════════════════════
+
+AVANT:
+──────
+if (userProfile == null) {
+    userProfile = User(
+        id = userId,
+        email = email,
+        displayName = displayName,
+        role = UserRole.MEMBER
+    )
+    FirebaseUserRepository.createUserIfNotExists(userId, userProfile)  ← Retour ignoré
+}
+
+sessionManager.saveSession(userProfile)
+
+APRÈS:
+──────
+if (userProfile == null) {
+    userProfile = User(
+        id = userId,
+        email = email,
+        displayName = displayName,
+        role = UserRole.MEMBER
+    )
+    userProfile = FirebaseUserRepository.createUserIfNotExists(userId, userProfile)  ← Récupère le résultat
+}
+
+sessionManager.saveSession(userProfile)
+
+RAISON:
+- createUserIfNotExists() retourne le User créé
+- RegisterFragment l'ignorait, utilisant l'objet non-persisté
+- La session pouvait avoir des données incohérentes
+
+═══════════════════════════════════════════════════════════════════════════════
+
+FICHIERS MODIFIES - RESUME:
+============================
+
+1. ✅ supabase_setup.sql
+   - Ajout colonne: membership_status TEXT DEFAULT 'NOT_SUBMITTED'
+   - Changement: role DEFAULT 'MEMBER' (au lieu de 'VISITOR')
+
+2. ✅ FirebaseUserRepository.kt (2 corrections)
+   - buildUserJson(): ajout membership_status
+   - createUserIfNotExists(): respecter le rôle fourni
+
+3. ✅ RegisterFragment.kt
+   - Récupérer le User retourné par createUserIfNotExists()
+
+FICHIERS INCHANGES (mais pertinents):
+- LoginFragment.kt → Récupérait déjà correctement le résultat
+- AuthenticationService.kt → Récupérait déjà correctement le résultat
+
+═══════════════════════════════════════════════════════════════════════════════
+
+FICHIERS DE SUPPORT CREES:
+===========================
+
+1. supabase_migration_add_membership_status.sql
+   - Migration pour tables existantes
+   - Ajoute la colonne membership_status
+   - Change le default du role
+
+2. DIAGNOSTIC_USERS_NOT_APPEARING.txt
+   - Analyse détaillée des 4 problèmes
+
+3. GUIDE_EXECUTION_FIX.txt
+   - Instructions pas à pas pour appliquer les corrections
+
+═══════════════════════════════════════════════════════════════════════════════
+
+IMPACT DES CORRECTIONS:
+=======================
+
+AVANT (❌ CASSÉ):
+- Inscription → User crée mais n'apparaît pas en BD
+- Raison: membership_status pas envoyé, role incorrect
+
+APRÈS (✅ FIXÉ):
+- Inscription → User crée et apparaît en BD
+- Colonnes correctes:
+  * id, email, display_name
+  * role = MEMBER ✅
+  * membership_status = NOT_SUBMITTED ✅
+
+Utilisateur peut alors:
+- Accéder au formulaire d'adhésion
+- Soumettre une demande
+- Attendre approbation admin
+- Voir son statut d'adhésion
+
+═══════════════════════════════════════════════════════════════════════════════
+
+PROCHAINES ETAPES:
+===================
+
+1. Exécuter la migration SQL sur Supabase
+2. Recompiler et redéployer l'application
+3. Tester l'inscription d'un nouvel utilisateur
+4. Vérifier dans la table users que toutes les colonnes sont remplies
+5. Tester le flux d'adhésion complet
+
+

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group
+        android:id="@+id/group_general"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_home"
+            android:title="@string/menu_home" />
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_info"
+            android:title="@string/menu_about" />
+        <item
+            android:id="@+id/nav_structure"
+            android:icon="@drawable/ic_people"
+            android:title="@string/menu_structure" />
+    </group>
+
+    <item android:title="@string/nav_group_content">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_activities"
+                    android:icon="@drawable/ic_volunteer"
+                    android:title="@string/menu_activities" />
+                <item
+                    android:id="@+id/nav_events"
+                    android:icon="@drawable/ic_event"
+                    android:title="@string/menu_events" />
+                <item
+                    android:id="@+id/nav_gallery"
+                    android:icon="@drawable/ic_photo_library"
+                    android:title="@string/menu_gallery" />
+                <item
+                    android:id="@+id/nav_documents"
+                    android:icon="@drawable/ic_description"
+                    android:title="@string/menu_documents" />
+                <item
+                    android:id="@+id/nav_contact"
+                    android:icon="@drawable/ic_contact_mail"
+                    android:title="@string/menu_contact" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/nav_member_section"
+        android:title="@string/nav_group_member">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_membership"
+                    android:icon="@drawable/ic_person_add"
+                    android:title="@string/menu_membership" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/nav_admin_section"
+        android:title="@string/menu_admin">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_admin_dashboard"
+                    android:icon="@drawable/ic_admin"
+                    android:title="@string/admin_dashboard_title" />
+            </group>
+        </menu>
+    </item>
+</menu>

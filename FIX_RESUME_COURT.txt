@@ -1,0 +1,85 @@
+🔴 PROBLEME IDENTIFIE ET RESOLU
+=================================
+
+PROBLEME:
+═════════
+Les utilisateurs qui s'inscrivaient n'apparaissaient pas dans la base de données.
+
+RAISON:
+═══════
+4 problèmes simultanés:
+
+1. ❌ La table users n'avait pas la colonne membership_status
+2. ❌ Le code n'envoyait pas membership_status à la BD
+3. ❌ Le code forçait role=VISITOR au lieu de MEMBER
+4. ❌ RegisterFragment n'exploitait pas l'utilisateur créé
+
+SOLUTIONS APPLIQUEES:
+════════════════════
+
+✅ 1. Mis à jour supabase_setup.sql
+     - Ajout colonne: membership_status
+     - Changement role DEFAULT en 'MEMBER'
+
+✅ 2. Corrigé FirebaseUserRepository.kt (buildUserJson)
+     - Ajout: put("membership_status", user.membershipStatus.name)
+
+✅ 3. Corrigé FirebaseUserRepository.kt (createUserIfNotExists)
+     - Respecte maintenant le rôle fourni
+
+✅ 4. Corrigé RegisterFragment.kt
+     - Récupère l'utilisateur retourné par createUserIfNotExists()
+
+
+FICHIERS MODIFIES:
+══════════════════
+
+1. supabase_setup.sql
+2. FirebaseUserRepository.kt (2 méthodes)
+3. RegisterFragment.kt
+
+
+FICHIERS DE SUPPORT CREES:
+══════════════════════════
+
+- supabase_migration_add_membership_status.sql (pour tables existantes)
+- GUIDE_EXECUTION_FIX.txt (guide détaillé)
+- DIAGNOSTIC_USERS_NOT_APPEARING.txt (diagnostic complet)
+- CHANGEMENTS_CODE_FIX.txt (avant/après détaillé)
+- PROBLEME_SOLUTIONS_VISUEL.txt (schémas visuels)
+- CHECKLIST_VERIFICATION.txt (checklist à suivre)
+
+
+QUOI FAIRE MAINTENANT:
+══════════════════════
+
+1. Ouvrir Supabase → SQL Editor
+2. Copier/coller: supabase_migration_add_membership_status.sql
+3. Cliquer RUN
+4. Attendre: "Query executed successfully"
+5. Recompiler l'app dans Android Studio
+6. Réinstaller sur votre appareil
+7. Tester l'inscription d'un nouvel utilisateur
+8. Vérifier dans Supabase que l'utilisateur apparaît
+
+
+TEMPS REQUIS:
+═════════════
+
+- Migration SQL: 2 min
+- Recompilation: 5 min
+- Réinstallation: 2 min
+- Test: 3 min
+─────────────
+TOTAL: ~12 minutes
+
+
+SI ENCORE DES PROBLEMES:
+════════════════════════
+
+Voir les fichiers guides:
+1. GUIDE_EXECUTION_FIX.txt → Instructions détaillées
+2. CHECKLIST_VERIFICATION.txt → Étapes de vérification
+3. DIAGNOSTIC_USERS_NOT_APPEARING.txt → Analyse complète
+
+

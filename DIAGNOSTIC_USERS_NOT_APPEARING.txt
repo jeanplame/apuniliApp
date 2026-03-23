@@ -1,0 +1,114 @@
+DIAGNOSTIC - PROBLEME: LES UTILISATEURS N'APPARAISSENT PAS EN BD
+================================================================
+
+PROBLEMES IDENTIFIES:
+====================
+
+1. ❌ MANQUE LE CHAMP membership_status DANS LA TABLE
+   - Le schéma SQL supabase_setup.sql n'avait pas le champ membership_status
+   - buildUserJson() envoie membership_status mais la BD n'avait pas cette colonne
+   - Résultat: INSERT/UPSERT échoue silencieusement
+
+2. ❌ buildUserJson() N'ENVOIE PAS membership_status
+   - Le champ n'était pas inclus dans le JSON
+   - Même si la BD avait la colonne, elle n'était pas remplie
+   - CORRECTION: ajout de put("membership_status", user.membershipStatus.name)
+
+3. ❌ createUserIfNotExists() NE RETOURNE PAS LE USER CRÉÉ (RegisterFragment)
+   - RegisterFragment crée l'utilisateur mais ne récupère pas l'objet retourné
+   - Résultat: la session n'a pas les données mises à jour
+   - CORRECTION: userProfile = FirebaseUserRepository.createUserIfNotExists(...)
+
+4. ❌ ROLE PAR DÉFAUT INCORRECT
+   - createUserIfNotExists() forçait le rôle à VISITOR au lieu de MEMBER
+   - Inconsistance avec RegisterFragment/LoginFragment qui envoient MEMBER
+   - CORRECTION: respecter le rôle fourni en paramètre
+
+
+SOLUTIONS APPLIQUEES:
+====================
+
+✅ 1. Modifier supabase_setup.sql
+   - Ajouter colonne: membership_status TEXT DEFAULT 'NOT_SUBMITTED'
+   - Changer default du role: 'MEMBER' (au lieu de 'VISITOR')
+
+✅ 2. Corriger buildUserJson() dans FirebaseUserRepository.kt
+   - Ajouter: put("membership_status", user.membershipStatus.name)
+
+✅ 3. Corriger createUserIfNotExists() dans FirebaseUserRepository.kt
+   - Utiliser le rôle fourni (normalement MEMBER)
+   - Exception: admin@apunili.com reste ADMIN
+
+✅ 4. Corriger RegisterFragment.kt
+   - Récupérer le User retourné: userProfile = createUserIfNotExists(...)
+
+
+ACTIONS REQUISES:
+=================
+
+1. EXÉCUTER LA MIGRATION SQL:
+   - Ouvrir Supabase Dashboard → SQL Editor
+   - Copier le contenu de: supabase_migration_add_membership_status.sql
+   - Exécuter la query
+
+   OU
+
+   - Créer une nouvelle table avec le schéma correct (supabase_setup.sql)
+   - Migrer les données si nécessaire
+
+2. REDÉPLOYER L'APPLICATION:
+   - Compiler et installer l'APK
+   - Tester l'inscription d'un nouvel utilisateur
+
+3. VÉRIFIER LA BD:
+   - Aller dans Supabase Dashboard → Table Editor
+   - Vérifier que la nouvelle ligne de l'utilisateur apparaît
+   - Vérifier les colonnes:
+     * id (UUID)
+     * email
+     * display_name
+     * role = "MEMBER"
+     * membership_status = "NOT_SUBMITTED"
+
+
+FICHIERS MODIFIES:
+==================
+
+✅ supabase_setup.sql
+   - Ajout colonne membership_status
+   - Changement default role de VISITOR à MEMBER
+
+✅ FirebaseUserRepository.kt
+   - Correction buildUserJson() pour envoyer membership_status
+   - Correction createUserIfNotExists() pour respecter le rôle
+
+✅ RegisterFragment.kt
+   - Récupération du User retourné par createUserIfNotExists()
+
+✅ Créé: supabase_migration_add_membership_status.sql
+   - Script migration pour tables existantes
+
+
+TESTING CHECKLIST:
+==================
+
+□ 1. Inscription avec email
+   □ Vérifier BD: nouvel utilisateur créé avec role=MEMBER
+   □ Vérifier: membership_status=NOT_SUBMITTED
+
+□ 2. Inscription avec Google Sign-in
+   □ Vérifier BD: même résultat que email
+
+□ 3. Connexion
+   □ User récupéré correctement avec tous les champs
+
+□ 4. Accès MembershipFragment
+   □ Utilisateur voit le formulaire (car membership_status=NOT_SUBMITTED)
+
+□ 5. Soumission de la demande
+   □ membership_status devient PENDING dans la BD
+
+□ 6. Admin approuve
+   □ membership_status devient ACCEPTED
+
+

@@ -1,0 +1,243 @@
+CHECKLIST DE VERIFICATION - UTILISATEURS EN BD
+================================================
+
+PRE-CONDITION CHECK:
+====================
+
+Avant de commencer, vérifier que vous avez:
+
+□ Accès au Supabase Dashboard
+  - Login: https://supabase.com
+  - Projet: Apunili
+  - Role: Admin (pour exécuter SQL)
+
+□ Android Studio configuré
+  - Projet apuniliApp ouvert
+  - Gradle synchronisé (Build → Sync Now)
+  - JDK 11+ installé
+
+□ Appareil ou émulateur Android prêt
+  - Connecté via USB (physique) OU lancé (émulateur)
+  - USB Debugging activé (pour appareil physique)
+
+
+ETAPE 1: MIGRATION SUPABASE
+===========================
+
+□ Ouvrir https://supabase.com/dashboard
+□ Sélectionner le projet Apunili
+□ Aller à: SQL Editor (menu gauche)
+□ Cliquer: New Query
+□ Copier le fichier: supabase_migration_add_membership_status.sql
+□ Coller dans l'éditeur SQL
+□ Cliquer: RUN (bouton en haut à droite)
+□ Attendre le message: "Query executed successfully"
+□ Vérifier: Table Editor → users → vérifier les colonnes
+
+COLONNES ATTENDUES:
+  ├─ id
+  ├─ email
+  ├─ display_name
+  ├─ photo_url
+  ├─ password_hash
+  ├─ role (DEFAULT 'MEMBER')
+  ├─ membership_status (DEFAULT 'NOT_SUBMITTED') ✅ NOUVEAU
+  └─ created_at
+
+
+ETAPE 2: CODE VERIFICATION
+===========================
+
+Vérifier que les fichiers sont bien modifiés:
+
+□ Fichier: FirebaseUserRepository.kt
+  - Chercher: "put("membership_status"" doit exister ✅
+  - Chercher: "role = roleToSave" et ligne d'après "user.role" ✅
+
+□ Fichier: RegisterFragment.kt
+  - Chercher: "userProfile = FirebaseUserRepository.createUserIfNotExists" ✅
+  - (Vérifier que c'est assigné au userProfile)
+
+□ Fichier: supabase_setup.sql
+  - Chercher: "membership_status" doit exister ✅
+  - Chercher: "DEFAULT 'MEMBER'" (pas 'VISITOR') ✅
+
+
+ETAPE 3: COMPILATION & DEPLOYMENT
+==================================
+
+□ Android Studio:
+  - Menu → Build → Clean Project
+  - Attendre le nettoyage (message en bas)
+  - Menu → Build → Build Bundle(s) / APK(s) → Build APK(s)
+  - Attendre la compilation (3-5 minutes)
+
+□ Message de succès attendu:
+  "Build complete! Output: /path/to/app-debug.apk"
+
+□ Installer sur l'appareil:
+  - Connecter l'appareil via USB (ou lancer émulateur)
+  - Shift + F10 (ou cliquer le triangle Run ▶)
+  - Sélectionner l'appareil
+  - Attendre: "Installation complete"
+
+
+ETAPE 4: INSCRIPTION TEST
+===========================
+
+Sur l'appareil/émulateur:
+
+□ Ouvrir l'app Apunili
+□ Si connecté: Menu → Déconnexion
+□ Écran d'accueil: Cliquer "S'inscrire"
+□ Formulaire d'inscription:
+  - Email: test_user_001@example.com
+  - Mot de passe: Test@123456
+  - Nom: TestUser
+□ Cliquer: "S'inscrire"
+□ Attendre: Message "Inscription réussie"
+□ Message affiché? ✅ OUI / ❌ NON
+
+Si ❌ NON - Erreur:
+  - Vérifier les logs: Android Studio → Logcat
+  - Chercher: "Exception" ou "Error"
+  - Vérifier la connexion à Supabase
+
+
+ETAPE 5: VERIFICATION BASE DE DONNEES
+=====================================
+
+□ Aller sur: https://supabase.com/dashboard
+□ Projet: Apunili
+□ Menu gauche: Table Editor
+□ Cliquer: users
+□ Chercher la ligne avec email: test_user_001@example.com
+□ Vérifier les colonnes:
+
+  ├─ id: __________________ (UUID généré)
+  ├─ email: test_user_001@example.com ✅
+  ├─ display_name: TestUser ✅
+  ├─ role: MEMBER ✅ (doit être MEMBER, pas VISITOR)
+  ├─ membership_status: NOT_SUBMITTED ✅ (doit être NOT_SUBMITTED)
+  └─ created_at: __________ (timestamp récent)
+
+Tous les champs présents et corrects? ✅ OUI / ❌ NON
+
+Si ❌ NON:
+  - role = VISITOR → Vérifier createUserIfNotExists() n'a pas changé
+  - membership_status = vide → buildUserJson() n'envoie pas le champ
+  - Ré-exécuter la migration SQL
+  - Recompiler l'app (Clean + Build)
+
+
+ETAPE 6: TEST FLUX ADHESION
+===========================
+
+Sur l'app (en restant connecté):
+
+□ Aller: Menu → Adhésion
+□ Vérifier: Le formulaire s'affiche (car membership_status=NOT_SUBMITTED)
+□ Remplir le formulaire:
+  - Nom: TestUser
+  - Prénom: Test
+  - Email: test_user_001@example.com (pré-rempli)
+  - Adresse: 123 Rue Test, 75000 Paris
+  - Téléphone: 0612345678
+  - Cocher: Les 3 cases (Statuts, ROI, Valeurs)
+
+□ Cliquer: "Envoyer ma demande d'adhésion"
+□ Message attendu: "Demande envoyée avec succès"
+□ Puis affichage change: "⏳ Demande en attente" ✅
+
+En BD vérifier: membership_status = PENDING ✅
+
+
+ETAPE 7: TEST APPROBATION ADMIN
+================================
+
+Se connecter en admin:
+
+□ Déconnecter l'utilisateur test
+□ Connexion: admin@apunili.com / (password)
+□ Menu: Admin Dashboard (devrait apparaître)
+□ Cliquer: "Gestion des Adhésions"
+□ Onglet: "En attente"
+□ Chercher: "TestUser" dans la liste
+□ Cliquer: "Approuver"
+□ Popup: Entrer un commentaire optionnel
+□ Cliquer: "Approuver"
+□ Message: "Adhésion approuvée" ✅
+
+En BD vérifier: membership_status = ACCEPTED ✅
+
+
+ETAPE 8: VERIFICATION UTILISATEUR APPROUVE
+===========================================
+
+Se reconnecter en tant qu'utilisateur:
+
+□ Déconnecter admin
+□ Connexion: test_user_001@example.com / Test@123456
+□ Menu: Adhésion
+□ Vérifier: Message "✅ Demande approuvée"
+  OU "✅ Vous êtes maintenant membre"
+
+Affichage correct? ✅ OUI / ❌ NON
+
+En BD vérifier: role = MEMBER, membership_status = ACCEPTED ✅
+
+
+RÉSUMÉ DE LA VÉRIFICATION:
+===========================
+
+Tous les éléments de la checklist complétés:
+
+□ Étape 1 - Migration SQL ✅
+□ Étape 2 - Code OK ✅
+□ Étape 3 - App compilée ✅
+□ Étape 4 - Inscription réussie ✅
+□ Étape 5 - Utilisateur en BD avec bons champs ✅
+□ Étape 6 - Flux adhésion fonctionne ✅
+□ Étape 7 - Admin peut approuver ✅
+□ Étape 8 - Utilisateur voit "Approuvé" ✅
+
+RÉSULTAT: ✅ TOUT FONCTIONNE!
+
+
+SI ECHEC A UNE ETAPE:
+=====================
+
+Étape 1 - SQL ne s'exécute pas:
+  → Vérifier: Vous êtes ADMIN du projet Supabase
+  → Vérifier: Pas de typo dans le SQL
+  → Essayer: Copier/coller depuis supabase_setup.sql
+
+Étape 4 - Inscription échoue:
+  → Logs → Chercher l'erreur Supabase
+  → Vérifier: SupabaseClient URL et KEY corrects
+  → Vérifier: Email confirmation OFF dans Supabase
+
+Étape 5 - Utilisateur n'apparaît pas:
+  → Vérifier: La BD a bien reçu la migration (colonne membership_status présente)
+  → Vérifier: buildUserJson() envoie le champ
+  → Vérifier: Les logs de l'app (Logcat)
+
+Étape 6 - Formulaire ne s'affiche pas:
+  → MembershipFragment check: membership_status = NOT_SUBMITTED?
+  → Vérifier: User récupéré correctement en session
+
+Étape 7 - Admin ne voit pas la demande:
+  → Vérifier: MembershipRequest créée en BD
+  → Vérifier: Admin a accès à AdminMembershipFragment
+
+
+CONTACT SUPPORT:
+=================
+
+Si toujours bloqué après cette checklist:
+1. Donner les LOGS complets (Logcat)
+2. Une capture de la table users
+3. Décrire exactement l'erreur/problème
+4. Spécifier quelle étape échoue
+
+

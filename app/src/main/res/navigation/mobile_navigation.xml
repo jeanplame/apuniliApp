@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.apuniliapp.ui.home.HomeFragment"
+        android:label="@string/menu_home"
+        tools:layout="@layout/fragment_home">
+
+        <action
+            android:id="@+id/action_home_to_activity_detail"
+            app:destination="@id/nav_activity_detail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_about"
+        android:name="com.example.apuniliapp.ui.about.AboutFragment"
+        android:label="@string/menu_about"
+        tools:layout="@layout/fragment_about" />
+
+    <fragment
+        android:id="@+id/nav_structure"
+        android:name="com.example.apuniliapp.ui.structure.StructureFragment"
+        android:label="@string/menu_structure"
+        tools:layout="@layout/fragment_structure" />
+
+    <fragment
+        android:id="@+id/nav_documents"
+        android:name="com.example.apuniliapp.ui.documents.DocumentsFragment"
+        android:label="@string/menu_documents"
+        tools:layout="@layout/fragment_documents" />
+
+    <fragment
+        android:id="@+id/nav_activities"
+        android:name="com.example.apuniliapp.ui.activities.ActivitiesFragment"
+        android:label="@string/menu_activities"
+        tools:layout="@layout/fragment_activities">
+
+        <action
+            android:id="@+id/action_activities_to_detail"
+            app:destination="@id/nav_activity_detail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_activity_detail"
+        android:name="com.example.apuniliapp.ui.activities.ActivityDetailFragment"
+        android:label="@string/activity_detail_title"
+        tools:layout="@layout/fragment_activity_detail">
+
+        <argument
+            android:name="activityId"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_events"
+        android:name="com.example.apuniliapp.ui.events.EventsFragment"
+        android:label="@string/menu_events"
+        tools:layout="@layout/fragment_events" />
+
+    <fragment
+        android:id="@+id/nav_gallery"
+        android:name="com.example.apuniliapp.ui.gallery.GalleryFragment"
+        android:label="@string/menu_gallery"
+        tools:layout="@layout/fragment_gallery" />
+
+    <fragment
+        android:id="@+id/nav_membership"
+        android:name="com.example.apuniliapp.ui.membership.MembershipFragment"
+        android:label="@string/menu_membership"
+        tools:layout="@layout/fragment_membership">
+        <action
+            android:id="@+id/action_membership_to_member_dashboard"
+            app:destination="@id/nav_member_dashboard" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_member_dashboard"
+        android:name="com.example.apuniliapp.ui.membership.MemberDashboardFragment"
+        android:label="@string/member_dashboard_title"
+        tools:layout="@layout/fragment_member_dashboard">
+        <action
+            android:id="@+id/action_member_dashboard_to_member_profile_edit"
+            app:destination="@id/nav_member_profile_edit" />
+        <action
+            android:id="@+id/action_member_dashboard_to_member_history_detail"
+            app:destination="@id/nav_member_history_detail" />
+        <action
+            android:id="@+id/action_member_dashboard_to_member_settings"
+            app:destination="@id/nav_member_settings" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_contact"
+        android:name="com.example.apuniliapp.ui.contact.ContactFragment"
+        android:label="@string/menu_contact"
+        tools:layout="@layout/fragment_contact" />
+
+    <fragment
+        android:id="@+id/nav_login"
+        android:name="com.example.apuniliapp.ui.auth.LoginFragment"
+        android:label="@string/auth_login"
+        tools:layout="@layout/fragment_login">
+
+        <action
+            android:id="@+id/action_login_to_admin_dashboard"
+            app:destination="@id/nav_admin_dashboard"
+            app:popUpTo="@id/nav_login"
+            app:popUpToInclusive="true" />
+
+        <action
+            android:id="@+id/action_login_to_home"
+            app:destination="@id/nav_home"
+            app:popUpTo="@id/nav_login"
+            app:popUpToInclusive="true" />
+
+        <action
+            android:id="@+id/action_login_to_register"
+            app:destination="@id/nav_register" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_register"
+        android:name="com.example.apuniliapp.ui.auth.RegisterFragment"
+        android:label="@string/auth_register"
+        tools:layout="@layout/fragment_register">
+
+        <action
+            android:id="@+id/action_register_to_home"
+            app:destination="@id/nav_home"
+            app:popUpTo="@id/nav_login"
+            app:popUpToInclusive="true" />
+
+        <action
+            android:id="@+id/action_register_to_admin_dashboard"
+            app:destination="@id/nav_admin_dashboard"
+            app:popUpTo="@id/nav_login"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.example.apuniliapp.ui.settings.SettingsFragment"
+        android:label="@string/menu_settings"
+        tools:layout="@layout/fragment_settings" />
+
+    <fragment
+        android:id="@+id/nav_admin_dashboard"
+        android:name="com.example.apuniliapp.ui.admin.AdminDashboardFragment"
+        android:label="@string/admin_dashboard_title"
+        tools:layout="@layout/fragment_admin_dashboard">
+
+        <action
+            android:id="@+id/action_dashboard_to_membership"
+            app:destination="@id/nav_admin_membership" />
+        <action
+            android:id="@+id/action_dashboard_to_publish"
+            app:destination="@id/nav_admin_publish" />
+        <action
+            android:id="@+id/action_dashboard_to_documents"
+            app:destination="@id/nav_admin_documents" />
+        <action
+            android:id="@+id/action_dashboard_to_logs"
+            app:destination="@id/nav_admin_logs" />
+        <action
+            android:id="@+id/action_dashboard_to_info"
+            app:destination="@id/nav_admin_info" />
+        <action
+            android:id="@+id/action_dashboard_to_structure"
+            app:destination="@id/nav_admin_structure" />
+        <action
+            android:id="@+id/action_dashboard_to_gallery"
+            app:destination="@id/nav_admin_gallery" />
+        <action
+            android:id="@+id/action_dashboard_to_manage_publications"
+            app:destination="@id/nav_admin_manage_publications" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_admin_manage_publications"
+        android:name="com.example.apuniliapp.ui.admin.AdminManagePublicationsFragment"
+        android:label="Gérer les publications"
+        tools:layout="@layout/fragment_admin_manage_publications">
+        <action
+            android:id="@+id/action_manage_publications_to_publish"
+            app:destination="@id/nav_admin_publish" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_admin_membership"
+        android:name="com.example.apuniliapp.ui.admin.AdminMembershipFragment"
+        android:label="@string/admin_membership_title"
+        tools:layout="@layout/fragment_admin_membership" />
+
+    <fragment
+        android:id="@+id/nav_admin_publish"
+        android:name="com.example.apuniliapp.ui.admin.AdminPublishFragment"
+        android:label="@string/admin_publish_title"
+        tools:layout="@layout/fragment_admin_publish" />
+
+    <fragment
+        android:id="@+id/nav_admin_documents"
+        android:name="com.example.apuniliapp.ui.admin.AdminDocumentsFragment"
+        android:label="@string/admin_documents_title"
+        tools:layout="@layout/fragment_admin_documents" />
+
+    <fragment
+        android:id="@+id/nav_admin_logs"
+        android:name="com.example.apuniliapp.ui.admin.AdminAuditLogsFragment"
+        android:label="@string/admin_logs_title"
+        tools:layout="@layout/fragment_admin_audit_logs" />
+
+    <fragment
+        android:id="@+id/nav_admin_info"
+        android:name="com.example.apuniliapp.ui.admin.AdminInfoFragment"
+        android:label="@string/admin_info_title"
+        tools:layout="@layout/fragment_admin_info" />
+
+    <fragment
+        android:id="@+id/nav_admin_structure"
+        android:name="com.example.apuniliapp.ui.admin.AdminStructureFragment"
+        android:label="@string/admin_structure_title"
+        tools:layout="@layout/fragment_admin_structure" />
+
+    <fragment
+        android:id="@+id/nav_admin_gallery"
+        android:name="com.example.apuniliapp.ui.admin.AdminGalleryFragment"
+        android:label="@string/admin_gallery_title"
+        tools:layout="@layout/fragment_admin_gallery" />
+
+    <!-- ===== MEMBER DASHBOARD FRAGMENTS ===== -->
+
+    <!-- Member Settings Fragment -->
+    <fragment
+        android:id="@+id/nav_member_settings"
+        android:name="com.example.apuniliapp.ui.membership.MemberSettingsFragment"
+        android:label="@string/menu_settings"
+        tools:layout="@layout/fragment_member_settings">
+        <action
+            android:id="@+id/action_member_settings_to_login"
+            app:destination="@id/nav_login"
+            app:popUpTo="@id/nav_membership"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Member Profile Edit Fragment -->
+    <fragment
+        android:id="@+id/nav_member_profile_edit"
+        android:name="com.example.apuniliapp.ui.membership.MemberProfileEditFragment"
+        android:label="@string/member_profile"
+        tools:layout="@layout/fragment_member_profile_edit" />
+
+    <!-- Member History Detail Fragment -->
+    <fragment
+        android:id="@+id/nav_member_history_detail"
+        android:name="com.example.apuniliapp.ui.membership.MemberHistoryDetailFragment"
+        android:label="@string/membership_history"
+        tools:layout="@layout/fragment_member_history_detail" />
+
+</navigation>

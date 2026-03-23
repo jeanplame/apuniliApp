@@ -1,0 +1,212 @@
+FLUX D'ADHESION APUNILI - AVEC CHAMP MEMBERSHIP_STATUS
+=======================================================
+
+NOUVEAU PROCESSUS :
+==================
+
+1. INSCRIPTION → Utilisateur devient MEMBER
+   - RegisterFragment.kt: role = UserRole.MEMBER
+   - LoginFragment.kt: role = UserRole.MEMBER
+   - AuthenticationService.kt: role = UserRole.MEMBER
+   - membershipStatus = MembershipAdherenceStatus.NOT_SUBMITTED
+
+2. ACCES A L'ECRAN ADHESION → Affichage basé sur membershipStatus
+
+   Si membershipStatus = NOT_SUBMITTED:
+   - Affiche le formulaire d'adhésion vide
+   - Bouton: "Envoyer ma demande d'adhésion"
+
+   Si membershipStatus = PENDING:
+   - Masque le formulaire
+   - Affiche: "⏳ Demande en attente"
+   - Message: "Votre demande d'adhésion est en cours d'évaluation"
+
+   Si membershipStatus = ACCEPTED:
+   - Masque le formulaire
+   - Affiche: "✅ Demande approuvée"
+   - Message: "Félicitations ! Vous êtes maintenant membre"
+
+   Si membershipStatus = REJECTED:
+   - Masque le formulaire
+   - Affiche: "❌ Demande rejetée"
+   - Affiche commentaire de l'admin
+   - Bouton: "Soumettre une nouvelle demande"
+
+3. SOUMISSION DEMANDE → membershipStatus = PENDING
+   - Utilisateur remplit le formulaire et clique "Envoyer"
+   - MembershipRequest créée dans Supabase avec status PENDING
+   - User.membershipStatus mis à jour en PENDING (via ViewModel)
+   - Fragment affiche le statut "En attente"
+
+4. ADMIN APPROUVE → membershipStatus = ACCEPTED
+   - Admin accède à "Gestion des Adhésions"
+   - Clique "Approuver" sur une demande
+   - Dialogue avec champ commentaire optionnel
+   - Execution:
+     * MembershipRequest.status = ACCEPTED
+     * User.membershipStatus = ACCEPTED
+     * Audit log créé
+
+5. UTILISATEUR SE RECONNECTE OU RECHARGE FRAGMENT
+   - LoginFragment récupère le User avec membershipStatus = ACCEPTED
+   - MembershipFragment.onResume() vérifie le statut
+   - Fragment affiche "Demande approuvée"
+
+6. ADMIN REJETTE (Alternative)
+   - Admin rejette avec commentaire
+   - Execution:
+     * MembershipRequest.status = REJECTED
+     * User.membershipStatus = REJECTED
+     * Audit log créé
+   - Utilisateur voit "Demande rejetée" + commentaire
+   - Peut cliquer "Soumettre une nouvelle demande"
+
+
+FICHIERS MODIFIES:
+==================
+
+1. User.kt
+   - Ajout champ: membershipStatus: MembershipAdherenceStatus = NOT_SUBMITTED
+   - Enum MembershipAdherenceStatus avec 4 valeurs:
+     * NOT_SUBMITTED (n'a pas rempli la fiche)
+     * PENDING (rempli, en attente d'approbation)
+     * ACCEPTED (approuvé)
+     * REJECTED (rejeté)
+
+2. RegisterFragment.kt
+   - Changement: role = UserRole.MEMBER (était VISITOR)
+
+3. LoginFragment.kt
+   - Changement: role = UserRole.MEMBER (était VISITOR)
+
+4. AuthenticationService.kt
+   - Changement: role = UserRole.MEMBER (était VISITOR)
+
+5. MembershipViewModel.kt
+   - Import MembershipAdherenceStatus
+   - Import FirebaseUserRepository
+   - submitMembershipRequest() appelle updateUserMembershipStatus()
+   - Change le User.membershipStatus en PENDING après soumission
+
+6. MembershipFragment.kt
+   - Import MembershipAdherenceStatus
+   - onViewCreated() vérifie User.membershipStatus au lieu de chercher MembershipRequest
+   - Affichage conditionnel basé sur membershipStatus:
+     * NOT_SUBMITTED → formulaire
+     * PENDING → statut "en attente"
+     * ACCEPTED → statut "approuvé"
+     * REJECTED → statut "rejeté" + bouton resoumettre
+   - Suppression setupMemberMode()
+   - Ajout observeRejectionStatus()
+   - onResume() recharge le statut
+
+7. FirebaseUserRepository.kt
+   - Ajout import MembershipAdherenceStatus
+   - Ajout méthode: updateUserMembershipStatus(uid, status)
+   - buildUserJson() envoie maintenant le membership_status
+
+8. AdminMembershipFragment.kt
+   - Ajout import MembershipAdherenceStatus
+   - approveMembership() appelle updateUserMembershipStatus(ACCEPTED)
+   - rejectMembership() appelle updateUserMembershipStatus(REJECTED)
+
+
+DATABASE CHANGES:
+=================
+
+Table users - nouveau champ:
+- membership_status VARCHAR (NOT_SUBMITTED, PENDING, ACCEPTED, REJECTED)
+  Par défaut: NOT_SUBMITTED
+
+Schema:
+id (UUID)
+email (VARCHAR)
+display_name (VARCHAR)
+role (VARCHAR) = MEMBER pour tous les nouveaux utilisateurs
+membership_status (VARCHAR) = NOT_SUBMITTED par défaut
+photo_url (VARCHAR)
+password_hash (VARCHAR)
+created_at (BIGINT)
+
+
+FLUX DES STATUTS:
+=================
+
+Utilisateur inscrit
+        ↓
+membershipStatus = NOT_SUBMITTED
+        ↓
+Remplit fiche et envoie
+        ↓
+membershipStatus = PENDING
+MembershipRequest créée avec status = PENDING
+        ↓
+[Admin approuve] ←→ [Admin rejette]
+        ↓
+membershipStatus = ACCEPTED    membershipStatus = REJECTED
+MembershipRequest status = ACCEPTED    MembershipRequest status = REJECTED
+        ↓
+Utilisateur peut accéder "Espace membre"    Peut resoumetttre demande
+
+
+LOGIQUE DE VISIBILITE DANS MEMBERSHIPFRAGMENT:
+===============================================
+
+onViewCreated():
+- Si role = ADMIN → redirection vers AdminMembershipFragment
+- Si non connecté → setupVisitorMode()
+- Si connecté (MEMBER):
+  * if membershipStatus = NOT_SUBMITTED → setupFormSubmission()
+  * if membershipStatus = PENDING → setupStatusDisplay("⏳...", "message...")
+  * if membershipStatus = ACCEPTED → setupStatusDisplay("✅...", "message...")
+  * if membershipStatus = REJECTED → setupStatusDisplay(request)
+
+setupStatusDisplay(String, String):
+  - Masque formulaire
+  - Affiche titre et message
+  - Détermine couleur selon titre
+
+setupStatusDisplay(MembershipRequest):
+  - Pour l'affichage du rejet
+  - Affiche commentaire de l'admin
+  - Bouton "Soumettre une nouvelle demande"
+
+
+VALIDATIONS EFFECTUEES:
+=======================
+
+✓ User.kt: Enum MembershipAdherenceStatus créée
+✓ User.kt: Champ membershipStatus ajouté avec default NOT_SUBMITTED
+✓ RegisterFragment: Users créés avec role=MEMBER
+✓ LoginFragment: Users créés avec role=MEMBER
+✓ AuthenticationService: Users créés avec role=MEMBER
+✓ MembershipViewModel: updateUserMembershipStatus appelée après soumission
+✓ MembershipFragment: Affichage basé sur membershipStatus
+✓ FirebaseUserRepository: updateUserMembershipStatus implémentée
+✓ AdminMembershipFragment: Approbation/rejet met à jour membershipStatus
+✓ Tous les imports ajoutés
+
+
+TESTS RECOMMANDES:
+==================
+
+1. Inscription d'un nouvel utilisateur
+   ✓ Vérifier dans DB: role = MEMBER, membershipStatus = NOT_SUBMITTED
+
+2. Accès au formulaire d'adhésion
+   ✓ Utilisateur voit le formulaire vide
+
+3. Soumission du formulaire
+   ✓ Dans DB: membershipStatus = PENDING
+   ✓ Fragment affiche "Demande en attente"
+
+4. Admin approuve
+   ✓ Dans DB: membershipStatus = ACCEPTED
+   ✓ Utilisateur voit "Demande approuvée"
+
+5. Admin rejette avec nouvelle demande
+   ✓ Dans DB: membershipStatus = REJECTED
+   ✓ Utilisateur voit "Demande rejetée" + commentaire
+   ✓ Clique "Soumettre" → membershipStatus = PENDING à nouveau
+
+

@@ -1,0 +1,1252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    tools:context=".ui.home.HomeFragment">
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scroll_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:overScrollMode="never">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- ════════════════════════════════════════════════ -->
+                <!-- SECTION 1 : HERO CAROUSEL                      -->
+                <!-- ════════════════════════════════════════════════ -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="352dp"
+                    android:clipChildren="false">
+
+                    <!-- ViewPager2 Carousel (background only) -->
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/hero_pager"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_hero_banner_modern" />
+
+                    <!-- Scrim gradient overlay at bottom -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="180dp"
+                        android:layout_gravity="bottom"
+                        android:background="@drawable/bg_hero_scrim" />
+
+                    <!-- All hero content stacked vertically (no overlap) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:paddingTop="24dp"
+                        android:paddingBottom="16dp">
+
+                        <!-- Logo agrandi -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
+                            app:cardCornerRadius="50dp"
+                            app:cardElevation="8dp"
+                            app:strokeColor="#44FFFFFF"
+                            app:strokeWidth="2dp">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@string/nav_header_desc"
+                                android:scaleType="centerCrop"
+                                app:srcCompat="@mipmap/ic_launcher_round" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Titre -->
+                        <TextView
+                            android:id="@+id/tv_hero_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:letterSpacing="0.05"
+                            android:text="@string/home_hero_title"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textSize="28sp"
+                            android:textStyle="bold" />
+
+                        <!-- Sous-titre -->
+                        <TextView
+                            android:id="@+id/tv_hero_subtitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:alpha="0.92"
+                            android:text="@string/home_hero_subtitle"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textSize="15sp" />
+
+                        <!-- Espace flexible pour séparer texte et boutons -->
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
+                        <!-- Boutons Hero -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="24dp">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_join_us"
+                                android:layout_width="0dp"
+                                android:layout_height="48dp"
+                                android:layout_marginEnd="8dp"
+                                android:layout_weight="1"
+                                android:text="@string/home_join_us"
+                                android:textColor="@color/md_theme_light_primary"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                app:backgroundTint="@color/white"
+                                app:cornerRadius="24dp"
+                                app:icon="@drawable/ic_person_add"
+                                app:iconGravity="textStart"
+                                app:iconSize="18dp"
+                                app:iconTint="@color/md_theme_light_primary" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_contact_us"
+                                style="@style/Widget.Material3.Button.OutlinedButton"
+                                android:layout_width="0dp"
+                                android:layout_height="48dp"
+                                android:layout_marginStart="8dp"
+                                android:layout_weight="1"
+                                android:text="@string/home_contact_us"
+                                android:textColor="@color/white"
+                                android:textSize="13sp"
+                                app:cornerRadius="24dp"
+                                app:icon="@drawable/ic_contact_mail"
+                                app:iconGravity="textStart"
+                                app:iconSize="18dp"
+                                app:iconTint="@color/white"
+                                app:strokeColor="#88FFFFFF"
+                                app:strokeWidth="1.5dp" />
+                        </LinearLayout>
+
+                        <!-- Dots Indicator -->
+                        <LinearLayout
+                            android:id="@+id/dots_indicator"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:gravity="center"
+                            android:orientation="horizontal" />
+                    </LinearLayout>
+                </FrameLayout>
+
+                <!-- ════════════════════════════════════════════════ -->
+                <!-- SECTION 2 : STAT COUNTERS (floating overlap)   -->
+                <!-- ════════════════════════════════════════════════ -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="-28dp"
+                    android:baselineAligned="false"
+                    android:clipToPadding="false"
+                    android:orientation="horizontal">
+
+                    <!-- Members -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="6dp"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="14dp">
+
+                            <FrameLayout
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/bg_stat_icon_blue">
+
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="@null"
+                                    app:srcCompat="@drawable/ic_group"
+                                    app:tint="@color/md_theme_light_primary" />
+                            </FrameLayout>
+
+                            <TextView
+                                android:id="@+id/tv_stat_members_count"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="0"
+                                android:textColor="@color/md_theme_light_primary"
+                                android:textSize="24sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/home_stat_members"
+                                android:textAppearance="?attr/textAppearanceLabelSmall"
+                                android:textColor="?attr/colorOnSurfaceVariant" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Activities -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="6dp"
+                        android:layout_weight="1"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="6dp"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="14dp">
+
+                            <FrameLayout
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/bg_stat_icon_green">
+
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="@null"
+                                    app:srcCompat="@drawable/ic_volunteer"
+                                    app:tint="@color/md_theme_light_secondary" />
+                            </FrameLayout>
+
+                            <TextView
+                                android:id="@+id/tv_stat_activities_count"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="0"
+                                android:textColor="@color/md_theme_light_secondary"
+                                android:textSize="24sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/home_stat_activities"
+                                android:textAppearance="?attr/textAppearanceLabelSmall"
+                                android:textColor="?attr/colorOnSurfaceVariant" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Events -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="6dp"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="14dp">
+
+                            <FrameLayout
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/bg_stat_icon_orange">
+
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="@null"
+                                    app:srcCompat="@drawable/ic_event"
+                                    app:tint="@color/md_theme_light_tertiary" />
+                            </FrameLayout>
+
+                            <TextView
+                                android:id="@+id/tv_stat_events_count"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="0"
+                                android:textColor="@color/md_theme_light_tertiary"
+                                android:textSize="24sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/home_stat_events"
+                                android:textAppearance="?attr/textAppearanceLabelSmall"
+                                android:textColor="?attr/colorOnSurfaceVariant" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <!-- ════════════════════════════════════════════════ -->
+                <!-- SECTION 3 : ANNONCES DÉFILANTES                -->
+                <!-- ════════════════════════════════════════════════ -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="16dp"
+                    app:cardBackgroundColor="#FFF8E1"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#FFE082"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="10dp">
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:contentDescription="@null"
+                            app:srcCompat="@drawable/ic_megaphone"
+                            app:tint="@color/md_theme_light_tertiary" />
+
+                        <ViewFlipper
+                            android:id="@+id/announcement_flipper"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:autoStart="true"
+                            android:flipInterval="4000"
+                            android:inAnimation="@android:anim/slide_in_left"
+                            android:outAnimation="@android:anim/slide_out_right">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:maxLines="2"
+                                android:text="@string/home_announcement_1"
+                                android:textColor="#E65100"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:maxLines="2"
+                                android:text="@string/home_announcement_2"
+                                android:textColor="#E65100"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:maxLines="2"
+                                android:text="@string/home_announcement_3"
+                                android:textColor="#E65100"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </ViewFlipper>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- ════════════════════════════════════════════════ -->
+                <!-- SECTION 4 : ACCES RAPIDE (Cards Grid 2x2)      -->
+                <!-- ════════════════════════════════════════════════ -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="24dp"
+                    android:text="@string/home_quick_access"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    android:textStyle="bold" />
+
+                <!-- Row 1 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="12dp"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <!-- Activities Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/quick_activities"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_quick_card_blue"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="14dp">
+
+                            <FrameLayout
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"
+                                android:background="@drawable/bg_stat_icon_blue">
+
+                                <ImageView
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="@string/home_quick_activities"
+                                    app:srcCompat="@drawable/ic_volunteer"
+                                    app:tint="@color/md_theme_light_primary" />
+                            </FrameLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/home_quick_activities"
+                                    android:textColor="@color/md_theme_light_primary"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/home_quick_activities_sub"
+                                    android:textColor="#5C6BC0"
+                                    android:textSize="11sp" />
+                            </LinearLayout>
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:contentDescription="@null"
+                                app:srcCompat="@drawable/ic_chevron_right"
+                                app:tint="@color/md_theme_light_primary" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Events Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/quick_events"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_quick_card_green"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="14dp">
+
+                            <FrameLayout
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"
+                                android:background="@drawable/bg_stat_icon_green">
+
+                                <ImageView
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="@string/home_quick_events"
+                                    app:srcCompat="@drawable/ic_event"
+                                    app:tint="@color/md_theme_light_secondary" />
+                            </FrameLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/home_quick_events"
+                                    android:textColor="@color/md_theme_light_secondary"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/home_quick_events_sub"
+                                    android:textColor="#66BB6A"
+                                    android:textSize="11sp" />
+                            </LinearLayout>
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:contentDescription="@null"
+                                app:srcCompat="@drawable/ic_chevron_right"
+                                app:tint="@color/md_theme_light_secondary" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <!-- Row 2 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="10dp"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <!-- Gallery Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/quick_gallery"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_quick_card_purple"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="14dp">
+
+                            <FrameLayout
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"
+                                android:background="@drawable/bg_stat_icon_blue">
+
+                                <ImageView
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="@string/home_quick_gallery"
+                                    app:srcCompat="@drawable/ic_photo_library"
+                                    app:tint="#7E57C2" />
+                            </FrameLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/home_quick_gallery"
+                                    android:textColor="#7E57C2"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/home_quick_gallery_sub"
+                                    android:textColor="#AB47BC"
+                                    android:textSize="11sp" />
+                            </LinearLayout>
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:contentDescription="@null"
+                                app:srcCompat="@drawable/ic_chevron_right"
+                                app:tint="#7E57C2" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Documents Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/quick_documents"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_quick_card_orange"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="14dp">
+
+                            <FrameLayout
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"
+                                android:background="@drawable/bg_stat_icon_orange">
+
+                                <ImageView
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="@string/home_quick_documents"
+                                    app:srcCompat="@drawable/ic_document"
+                                    app:tint="@color/md_theme_light_tertiary" />
+                            </FrameLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/home_quick_documents"
+                                    android:textColor="@color/md_theme_light_tertiary"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/home_quick_documents_sub"
+                                    android:textColor="#FFA726"
+                                    android:textSize="11sp" />
+                            </LinearLayout>
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:contentDescription="@null"
+                                app:srcCompat="@drawable/ic_chevron_right"
+                                app:tint="@color/md_theme_light_tertiary" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <!-- ════════════════════════════════════════════════ -->
+                <!-- SECTION 5 : NOTRE MISSION                      -->
+                <!-- ════════════════════════════════════════════════ -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="24dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="1dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <View
+                            android:layout_width="4dp"
+                            android:layout_height="match_parent"
+                            android:background="@color/md_theme_light_primary" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:padding="20dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"
+                                    android:contentDescription="@null"
+                                    app:srcCompat="@drawable/ic_star"
+                                    app:tint="@color/md_theme_light_primary" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="8dp"
+                                    android:text="@string/home_our_mission"
+                                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                                    android:textColor="?attr/colorPrimary"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
+                                android:lineSpacingMultiplier="1.5"
+                                android:text="@string/home_mission_text"
+                                android:textAppearance="?attr/textAppearanceBodyMedium"
+                                android:textColor="?attr/colorOnSurfaceVariant" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- ════════════════════════════════════════════════ -->
+                <!-- SECTION 6 : MOT DU PRÉSIDENT                   -->
+                <!-- ════════════════════════════════════════════════ -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="16dp"
+                    app:cardBackgroundColor="#F0F0FF"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:contentDescription="@null"
+                                app:srcCompat="@drawable/ic_format_quote"
+                                app:tint="#5C6BC0" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/home_president_word_title"
+                                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                                    android:textColor="#3949AB"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/home_president_name"
+                                    android:textAppearance="?attr/textAppearanceLabelSmall"
+                                    android:textColor="#7986CB" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="40dp"
+                            android:layout_height="2dp"
+                            android:layout_marginTop="10dp"
+                            android:background="#7986CB" />
+
+                        <TextView
+                            android:id="@+id/tv_president_word"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:lineSpacingMultiplier="1.5"
+                            android:maxLines="3"
+                            android:text="@string/home_president_word_text"
+                            android:textAppearance="?attr/textAppearanceBodyMedium"
+                            android:textColor="#424242"
+                            android:textStyle="italic" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_read_more_president"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/home_read_more"
+                            android:textColor="#5C6BC0"
+                            android:textSize="12sp"
+                            app:icon="@drawable/ic_arrow_forward"
+                            app:iconGravity="end"
+                            app:iconSize="14dp"
+                            app:iconTint="#5C6BC0" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- ════════════════════════════════════════════════ -->
+                <!-- SECTION 7 : DERNIÈRES ACTIVITÉS                -->
+                <!-- ════════════════════════════════════════════════ -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="28dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:layout_width="4dp"
+                        android:layout_height="20dp"
+                        android:background="@color/md_theme_light_primary" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/home_latest_activities"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_see_all_activities"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="@string/home_see_all"
+                        android:textSize="12sp"
+                        app:icon="@drawable/ic_arrow_forward"
+                        app:iconGravity="end"
+                        app:iconSize="14dp" />
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_latest_activities"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:clipToPadding="false"
+                    android:overScrollMode="never"
+                    android:paddingHorizontal="16dp" />
+
+                <TextView
+                    android:id="@+id/tv_empty_activities"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="24dp"
+                    android:text="@string/home_no_activities"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:visibility="gone" />
+
+                <!-- ════════════════════════════════════════════════ -->
+                <!-- SECTION 8 : PROCHAINS ÉVÉNEMENTS               -->
+                <!-- ════════════════════════════════════════════════ -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="28dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:layout_width="4dp"
+                        android:layout_height="20dp"
+                        android:background="@color/md_theme_light_secondary" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/home_upcoming_events"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_see_all_events"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="@string/home_see_all"
+                        android:textSize="12sp"
+                        app:icon="@drawable/ic_arrow_forward"
+                        app:iconGravity="end"
+                        app:iconSize="14dp" />
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_upcoming_events"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:clipToPadding="false"
+                    android:nestedScrollingEnabled="false"
+                    android:overScrollMode="never"
+                    android:paddingHorizontal="16dp" />
+
+                <TextView
+                    android:id="@+id/tv_empty_events"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="24dp"
+                    android:text="@string/home_no_events"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:visibility="gone" />
+
+                <!-- ════════════════════════════════════════════════ -->
+                <!-- SECTION 9 : NOS VALEURS                        -->
+                <!-- ════════════════════════════════════════════════ -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="28dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:layout_width="4dp"
+                        android:layout_height="20dp"
+                        android:background="@color/md_theme_light_tertiary" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/home_our_values"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_values"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:clipToPadding="false"
+                    android:overScrollMode="never"
+                    android:paddingHorizontal="16dp" />
+
+                <!-- ════════════════════════════════════════════════ -->
+                <!-- SECTION 10 : CTA REJOIGNEZ-NOUS                -->
+                <!-- ════════════════════════════════════════════════ -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="28dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="4dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_join_cta"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:padding="28dp">
+
+                        <ImageView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:contentDescription="@null"
+                            app:srcCompat="@drawable/ic_heart"
+                            app:tint="#88FFFFFF" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:text="@string/home_join_cta_title"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:alpha="0.9"
+                            android:lineSpacingMultiplier="1.3"
+                            android:text="@string/home_join_cta_desc"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textSize="13sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_cta_become_member"
+                                android:layout_width="0dp"
+                                android:layout_height="48dp"
+                                android:layout_marginEnd="8dp"
+                                android:layout_weight="1"
+                                android:text="@string/home_become_member"
+                                android:textColor="@color/md_theme_light_primary"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                app:backgroundTint="@color/white"
+                                app:cornerRadius="24dp"
+                                app:icon="@drawable/ic_person_add"
+                                app:iconGravity="textStart"
+                                app:iconSize="16dp"
+                                app:iconTint="@color/md_theme_light_primary" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_cta_contact"
+                                style="@style/Widget.Material3.Button.OutlinedButton"
+                                android:layout_width="0dp"
+                                android:layout_height="48dp"
+                                android:layout_marginStart="8dp"
+                                android:layout_weight="1"
+                                android:text="@string/home_contact_us"
+                                android:textColor="@color/white"
+                                android:textSize="12sp"
+                                app:cornerRadius="24dp"
+                                app:strokeColor="#88FFFFFF"
+                                app:strokeWidth="1.5dp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- ════════════════════════════════════════════════ -->
+                <!-- SECTION 11 : FOOTER SOCIAL                     -->
+                <!-- ════════════════════════════════════════════════ -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="24dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_footer_card"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:padding="28dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/home_follow_us"
+                            android:textColor="@color/white"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:alpha="0.7"
+                            android:text="@string/home_footer_subtitle"
+                            android:textColor="@color/white"
+                            android:textSize="12sp" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/btn_facebook"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:layout_marginEnd="12dp"
+                                android:clickable="true"
+                                android:focusable="true"
+                                app:cardBackgroundColor="#33FFFFFF"
+                                app:cardCornerRadius="25dp"
+                                app:cardElevation="0dp"
+                                app:strokeWidth="0dp">
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="@string/home_follow_us"
+                                    app:srcCompat="@drawable/ic_facebook" />
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/btn_whatsapp"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:layout_marginEnd="12dp"
+                                android:clickable="true"
+                                android:focusable="true"
+                                app:cardBackgroundColor="#33FFFFFF"
+                                app:cardCornerRadius="25dp"
+                                app:cardElevation="0dp"
+                                app:strokeWidth="0dp">
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="@string/home_follow_us"
+                                    app:srcCompat="@drawable/ic_whatsapp" />
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/btn_email"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:layout_marginEnd="12dp"
+                                android:clickable="true"
+                                android:focusable="true"
+                                app:cardBackgroundColor="#33FFFFFF"
+                                app:cardCornerRadius="25dp"
+                                app:cardElevation="0dp"
+                                app:strokeWidth="0dp">
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="@string/home_email"
+                                    app:srcCompat="@drawable/ic_email_outline"
+                                    app:tint="@color/white" />
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/btn_phone"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:clickable="true"
+                                android:focusable="true"
+                                app:cardBackgroundColor="#33FFFFFF"
+                                app:cardCornerRadius="25dp"
+                                app:cardElevation="0dp"
+                                app:strokeWidth="0dp">
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:contentDescription="@string/home_phone"
+                                    app:srcCompat="@drawable/ic_phone"
+                                    app:tint="@color/white" />
+                            </com.google.android.material.card.MaterialCardView>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="60dp"
+                            android:layout_height="1dp"
+                            android:layout_marginTop="20dp"
+                            android:alpha="0.3"
+                            android:background="@color/white" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:alpha="0.8"
+                            android:drawablePadding="6dp"
+                            android:gravity="center"
+                            android:text="@string/home_address"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            app:drawableStartCompat="@drawable/ic_location"
+                            app:drawableTint="#88FFFFFF" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:alpha="0.6"
+                            android:text="@string/home_copyright"
+                            android:textColor="@color/white"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</FrameLayout>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardElevation="1dp"
+    app:cardCornerRadius="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <!-- Timeline Icon -->
+        <ImageView
+            android:id="@+id/iv_history_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_info"
+            android:scaleType="centerInside"
+            android:contentDescription="Événement"
+            android:tint="@color/status_accepted" />
+
+        <!-- Timeline Content -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="16dp">
+
+            <!-- Event Title -->
+            <TextView
+                android:id="@+id/tv_history_event"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?attr/textAppearanceTitleSmall"
+                android:textStyle="bold"
+                tools:text="✅ Demande approuvée" />
+
+            <!-- Event Description -->
+            <TextView
+                android:id="@+id/tv_history_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                tools:text="Félicitations! Votre adhésion a été approuvée" />
+
+            <!-- Event Date -->
+            <TextView
+                android:id="@+id/tv_history_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                tools:text="15 Mar 2026 14:30" />
+        </LinearLayout>
+
+        <!-- Timeline Connector (vertical line) -->
+        <View
+            android:layout_width="2dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="19dp"
+            android:background="?attr/colorOutline"
+            android:alpha="0.3" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
